@@ -1,4 +1,4 @@
-# chichipui-pager
+# chichi-pui pager
 
 ![logo](./images/logo.png)
 
