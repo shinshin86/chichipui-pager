@@ -1,5 +1,20 @@
 let currentPopup: HTMLDivElement | null = null;
 
+// オプションの設定状態からポップアップの有効・無効を切り替える
+const handlePopupActivation = () => {
+  chrome.storage.sync.get("isPopupEnabled").then((data) => {
+    if (data.isPopupEnabled) {
+      activatePopup();
+    }
+  }).catch(console.error);
+};
+
+if (document.readyState === "complete") {
+  handlePopupActivation();
+} else {
+  window.addEventListener("load", handlePopupActivation);
+}
+
 class TemporaryStorage<T> {
   private storage: Record<string, T>;
 
@@ -73,39 +88,41 @@ for (let i = 1; i <= maxPageNumber; i++) {
 
 existingPaginator.replaceWith(customPaginator);
 
-document.querySelectorAll<HTMLAnchorElement>(".pagination-link").forEach(
-  (link: HTMLAnchorElement) => {
-    link.addEventListener("mouseenter", function (event: MouseEvent) {
-      const url: URL = new URL(link.href);
-      const pageKey: string | null = url.searchParams.get("p");
+const activatePopup = () => {
+  document.querySelectorAll<HTMLAnchorElement>(".pagination-link").forEach(
+    (link: HTMLAnchorElement) => {
+      link.addEventListener("mouseenter", function (event: MouseEvent) {
+        const url: URL = new URL(link.href);
+        const pageKey: string | null = url.searchParams.get("p");
 
-      // すでに表示中のポップアップがあれば削除
-      if (currentPopup) {
-        document.body.removeChild(currentPopup);
-        currentPopup = null;
-      }
+        // すでに表示中のポップアップがあれば削除
+        if (currentPopup) {
+          document.body.removeChild(currentPopup);
+          currentPopup = null;
+        }
 
-      if (pageKey && tempStorage.getData(pageKey)) {
-        showPopup(
-          event.clientX,
-          event.clientY,
-          tempStorage.getData(pageKey) || "",
-        );
-      } else {
-        fetch(url)
-          .then((response) => response.text())
-          .then((html) => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const titleList = parseTitleList(doc);
-            const stringifiedTitleList = JSON.stringify(titleList);
-            tempStorage.setData(pageKey as string, stringifiedTitleList);
-            showPopup(event.clientX, event.clientY, stringifiedTitleList);
-          });
-      }
-    });
-  },
-);
+        if (pageKey && tempStorage.getData(pageKey)) {
+          showPopup(
+            event.clientX,
+            event.clientY,
+            tempStorage.getData(pageKey) || "",
+          );
+        } else {
+          fetch(url)
+            .then((response) => response.text())
+            .then((html) => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, "text/html");
+              const titleList = parseTitleList(doc);
+              const stringifiedTitleList = JSON.stringify(titleList);
+              tempStorage.setData(pageKey as string, stringifiedTitleList);
+              showPopup(event.clientX, event.clientY, stringifiedTitleList);
+            });
+        }
+      });
+    },
+  );
+};
 
 // 遷移先のページタイトルをリスト形式のHTMLにして返す
 const createList = (titleList: Array<string>): HTMLUListElement => {
