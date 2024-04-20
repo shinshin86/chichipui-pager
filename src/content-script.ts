@@ -106,6 +106,7 @@ const activatePopup = () => {
             event.clientX,
             event.clientY,
             tempStorage.getData(pageKey) || "",
+            pageKey,
           );
         } else {
           fetch(url)
@@ -116,7 +117,12 @@ const activatePopup = () => {
               const titleList = parseTitleList(doc);
               const stringifiedTitleList = JSON.stringify(titleList);
               tempStorage.setData(pageKey as string, stringifiedTitleList);
-              showPopup(event.clientX, event.clientY, stringifiedTitleList);
+              showPopup(
+                event.clientX,
+                event.clientY,
+                stringifiedTitleList,
+                pageKey || "",
+              );
             });
         }
       });
@@ -140,14 +146,19 @@ const createList = (titleList: Array<string>): HTMLUListElement => {
   return list;
 };
 
-const showPopup = (mouseX: number, mouseY: number, text: string): void => {
+const showPopup = (
+  mouseX: number,
+  mouseY: number,
+  text: string,
+  pageKey: string,
+): void => {
   if (currentPopup) {
     document.body.removeChild(currentPopup);
   }
 
   const popup: HTMLDivElement = document.createElement("div");
   const title = document.createElement("h3");
-  title.textContent = "遷移先のタイトル一覧";
+  title.textContent = `${pageKey}ページ目の画像タイトル一覧`;
   title.style.fontSize = "1rem";
   title.style.fontWeight = "bold";
   popup.appendChild(title);
