@@ -1,7 +1,7 @@
 {
   "name": "chichipui-pager",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "AIイラスト・AIフォト・AIグラビア専用の投稿サイトである『chichi-pui（ちちぷい）』内のページャーから各ページに移動しやすくするために独自に改良したページャーChrome拡張機能です。",
   "type": "module",
   "author": "shinshin86 <shinshin86npm@gmail.com> (https://github.com/shinshin86)",
