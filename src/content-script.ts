@@ -1,5 +1,10 @@
 let currentPopup: HTMLDivElement | null = null;
 
+type TitleData = {
+  title: string;
+  url: string;
+};
+
 // オプションの設定状態からポップアップの有効・無効を切り替える
 const handlePopupActivation = () => {
   chrome.storage.sync.get("isPopupEnabled").then((data) => {
@@ -33,26 +38,28 @@ class TemporaryStorage<T> {
 
 const tempStorage = new TemporaryStorage<string>();
 
-const parseTitleList = (html: Document): Array<string> => {
-  const titleList: Array<string> = [];
+const parseTitleDataList = (html: Document): Array<TitleData> => {
+  const titleDataList: Array<TitleData> = [];
 
   html.querySelectorAll(".column").forEach((column) => {
     if (!column) {
       return;
     }
 
-    const imageTitle = column.querySelector("h3")?.textContent;
-    if (!imageTitle) {
+    const title = column.querySelector("h3")?.textContent;
+    if (!title) {
       return;
     }
 
-    titleList.push(imageTitle);
+    const url = column.querySelector("a")?.getAttribute("href") || "";
+
+    titleDataList.push({ title, url });
   });
 
   // 最後の要素は不要なので削除
-  titleList.pop();
+  titleDataList.pop();
 
-  return titleList;
+  return titleDataList;
 };
 
 const existingPaginator = document.querySelector(
@@ -114,13 +121,13 @@ const activatePopup = () => {
             .then((html) => {
               const parser = new DOMParser();
               const doc = parser.parseFromString(html, "text/html");
-              const titleList = parseTitleList(doc);
-              const stringifiedTitleList = JSON.stringify(titleList);
-              tempStorage.setData(pageKey as string, stringifiedTitleList);
+              const titleDataList = parseTitleDataList(doc);
+              const stringifiedTitleDataList = JSON.stringify(titleDataList);
+              tempStorage.setData(pageKey as string, stringifiedTitleDataList);
               showPopup(
                 event.clientX,
                 event.clientY,
-                stringifiedTitleList,
+                stringifiedTitleDataList,
                 pageKey || "",
               );
             });
@@ -131,15 +138,20 @@ const activatePopup = () => {
 };
 
 // 遷移先のページタイトルをリスト形式のHTMLにして返す
-const createList = (titleList: Array<string>): HTMLUListElement => {
+const createList = (titleDataList: Array<TitleData>): HTMLUListElement => {
   const list = document.createElement("ul");
-  titleList.forEach((title) => {
+  titleDataList.forEach((data) => {
     const listItem = document.createElement("li");
-    listItem.textContent = title;
+    const link = document.createElement("a");
     listItem.style.padding = "2px";
     listItem.style.margin = "2px";
     listItem.style.fontSize = "0.8rem";
     listItem.style.fontWeight = "bold";
+    link.href = data.url;
+    link.textContent = data.title;
+    link.style.color = "blue";
+    link.style.textDecoration = "underline";
+    listItem.appendChild(link);
     list.appendChild(listItem);
   });
 
