@@ -8,4 +8,15 @@ export default {
       "options.js": new URL("./options.js", import.meta.url).pathname,
     },
   },
+  build: {
+    outDir: "dist",
+    rollupOptions: {
+      input: {
+        content: "src/content-script.ts",
+      },
+      output: {
+        entryFileNames: "[name].js",
+      },
+    },
+  },
 };
