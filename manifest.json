@@ -1,7 +1,7 @@
 {
   "name": "chichi-pui pager - Unofficial improved version of chichi-pui pager",
   "description": "AIイラスト・AIフォト・AIグラビア専用の投稿サイトである『chichi-pui（ちちぷい）』内のページャーから各ページに移動しやすくするために独自に改良したページャーChrome拡張機能です。",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "manifest_version": 3,
   "permissions": [
     "storage"
