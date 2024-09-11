@@ -74,12 +74,24 @@ const maxPageNumber = parseInt(lastPageLink?.textContent ?? "", 10);
 const customPaginator = document.createElement("ul");
 customPaginator.className = "pagination-list";
 
+// 現在のURLからage_limitパラメータを取得
+const currentUrl = new URL(window.location.href);
+const ageLimitParam = currentUrl.searchParams.get("age_limit");
+
 for (let i = 1; i <= maxPageNumber; i++) {
   const listItem = document.createElement("li");
   listItem.style.marginBottom = "8px";
   const pageLink = document.createElement("a");
   pageLink.className = "pagination-link";
-  pageLink.href = `?p=${i}`;
+
+  // URL生成
+  const newUrl = new URL(window.location.href);
+  newUrl.searchParams.set("p", i.toString());
+  if (ageLimitParam) {
+    newUrl.searchParams.set("age_limit", ageLimitParam);
+  }
+
+  pageLink.href = newUrl.toString();
   pageLink.textContent = i.toString();
 
   // 現在表示中のページにはis-currentクラスを付与
